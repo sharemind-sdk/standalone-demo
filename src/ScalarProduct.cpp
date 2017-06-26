@@ -40,8 +40,8 @@ int main(int argc, char ** argv) {
         namespace po = boost::program_options;
 
         po::options_description desc(
-            "MillionairesInput\n"
-            "Usage: ScriptBenchmark [OPTION]...\n\n"
+            "ScalarProduct\n"
+            "Usage: ScalarProduct [OPTION]...\n\n"
             "Options");
         desc.add_options()
             ("conf,c", po::value<std::string>(&conf)->default_value("controller.cfg"),
@@ -65,7 +65,7 @@ int main(int argc, char ** argv) {
     logBackend->addAppender(std::make_shared<LogHard::StdAppender>());
     logBackend->addAppender(
                 std::make_shared<LogHard::FileAppender>(
-                    "MillionairesInput.log",
+                    "ScalarProduct.log",
                     LogHard::FileAppender::OVERWRITE));
     const LogHard::Logger logger(logBackend);
 
