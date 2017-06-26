@@ -4,7 +4,7 @@
 
 ### Build on the command line
 
-To build and install the binaries and configuration in the `prefix/` directory.
+To build and install the binaries and configuration into the `prefix/` directory, run:
 
 ```
 mkdir build
@@ -13,7 +13,7 @@ cmake ..
 make install
 ```
 
-To compile and install the SecreC files.
+To compile and install the SecreC files, run:
 
 ```
 sm_compile.sh secrec/*.sc
@@ -30,3 +30,4 @@ sm_compile.sh secrec/*.sc
 ## Run instructions
 
 Before running the application, start the Sharemind servers either in Qt Creator or by running `sm_start_servers.sh` on the command line.
+Then run the executable `prefix/bin/ScalarProduct` from the command line or run the project from Qt Creator.
