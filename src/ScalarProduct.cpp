@@ -44,7 +44,7 @@ int main(int argc, char ** argv) {
             "Usage: ScalarProduct [OPTION]...\n\n"
             "Options");
         desc.add_options()
-            ("conf,c", po::value<std::string>(&conf)->default_value("controller.cfg"),
+            ("conf,c", po::value<std::string>(&conf)->default_value("client.cfg"),
                 "Set the configuration file.")
             ("help", "Print this help");
 
