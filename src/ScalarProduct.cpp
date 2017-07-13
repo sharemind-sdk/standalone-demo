@@ -10,6 +10,7 @@
 #include <sharemind/controller/SystemControllerGlobals.h>
 #include <sharemind/DebugOnly.h>
 #include <sharemind/GlobalDeleter.h>
+#include <sharemind/MakeUnique.h>
 #include <sstream>
 #include <string>
 
@@ -34,7 +35,7 @@ inline std::shared_ptr<void> newGlobalBuffer(void const * const data,
 }
 
 int main(int argc, char ** argv) {
-    std::string conf;
+    std::unique_ptr<sm::SystemControllerConfiguration> config;
 
     try {
         namespace po = boost::program_options;
@@ -44,7 +45,7 @@ int main(int argc, char ** argv) {
             "Usage: ScalarProduct [OPTION]...\n\n"
             "Options");
         desc.add_options()
-            ("conf,c", po::value<std::string>(&conf)->default_value("client.cfg"),
+            ("conf,c", po::value<std::string>(),
                 "Set the configuration file.")
             ("help", "Print this help");
 
@@ -55,6 +56,12 @@ int main(int argc, char ** argv) {
         if (vm.count("help")) {
             std::cout << desc << std::endl;
             return EXIT_SUCCESS;
+        }
+        if (vm.count("conf")) {
+            config = sm::makeUnique<sm::SystemControllerConfiguration>(
+                         vm["conf"].as<std::string>());
+        } else {
+            config = sm::makeUnique<sm::SystemControllerConfiguration>();
         }
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
@@ -106,9 +113,8 @@ int main(int argc, char ** argv) {
     }
 
     try {
-        sm::SystemControllerConfiguration config(conf);
         sm::SystemControllerGlobals systemControllerGlobals;
-        sm::SystemController c(logger, config);
+        sm::SystemController c(logger, *config);
 
         // Initialize the argument map and set the arguments
         sm::IController::ValueMap arguments;
