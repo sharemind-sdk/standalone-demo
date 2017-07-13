@@ -34,6 +34,25 @@ inline std::shared_ptr<void> newGlobalBuffer(void const * const data,
     return r;
 }
 
+struct ExtraIndentExceptionFormatter {
+
+    template <typename OutStream>
+    void operator()(std::size_t const exceptionNumber,
+                    std::size_t const totalExceptions,
+                    std::exception_ptr e,
+                    OutStream out) noexcept
+    {
+        assert(e);
+        out << "    ";
+        return LogHard::Logger::StandardFormatter()(
+                    exceptionNumber,
+                    totalExceptions,
+                    std::move(e),
+                    std::forward<OutStream>(out));
+    }
+
+};
+
 int main(int argc, char ** argv) {
     std::unique_ptr<sm::SystemControllerConfiguration> config;
 
@@ -153,26 +172,15 @@ int main(int argc, char ** argv) {
 
         return EXIT_SUCCESS;
     } catch (const sm::IController::WorkerException & e) {
-        logger.error() << "Multiple exceptions caught:";
+        logger.fatal() << "Multiple exceptions caught:";
         for (size_t i = 0u; i < e.numWorkers(); i++) {
-            std::exception_ptr ep(e.nested_ptrs()[i]);
-            while (ep) {
+            if (std::exception_ptr ep = e.nested_ptrs()[i]) {
+                logger.fatal() << "  Exception from server " << i << ':';
                 try {
-                    std::rethrow_exception(e.nested_ptrs()[i]);
-                } catch (const std::exception & e) {
-                    logger.error() << ' ' << i << ": " << e.what();
-                    try {
-                        std::rethrow_if_nested(e);
-                        ep = nullptr;
-                    } catch (...) {
-                        ep = std::current_exception();
-                    }
-                } catch (const std::nested_exception & e) {
-                    logger.error() << ' ' << i << ": <unknown nested>";
-                    ep = e.nested_ptr();
+                    std::rethrow_exception(std::move(ep));
                 } catch (...) {
-                    logger.error() << ' ' << i << ": <unknown>";
-                    ep = nullptr;
+                    logger.printCurrentException<LogHard::Priority::Fatal>(
+                                ExtraIndentExceptionFormatter());
                 }
             }
         }
