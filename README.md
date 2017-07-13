@@ -4,7 +4,7 @@
 
 ### Build on the command line
 
-To build and install the binaries and configuration into the `prefix/` directory, run:
+To build and install the binaries into the `prefix/` directory, run:
 
 ```
 mkdir build
