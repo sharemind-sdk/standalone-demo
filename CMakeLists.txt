@@ -16,19 +16,16 @@ SET(Boost_USE_STATIC_RUNTIME OFF)
 FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
 FIND_PACKAGE(LogHard REQUIRED)
 FIND_PACKAGE(SharemindLibController REQUIRED)
-FIND_PACKAGE(SharemindLibIController REQUIRED)
 
 INCLUDE_DIRECTORIES(
     ${Boost_INCLUDE_DIRS}
     ${LogHard_INCLUDE_DIRS}
     ${SharemindLibController_INCLUDE_DIRS}
-    ${SharemindLibIController_INCLUDE_DIRS}
 )
 
 ADD_DEFINITIONS(
     ${LogHard_DEFINITIONS}
     ${SharemindLibController_DEFINITIONS}
-    ${SharemindLibIController_DEFINITIONS}
     "-D__STDC_LIMIT_MACROS"
 )
 
@@ -36,7 +33,6 @@ SET(STANDALONEDEMO_LIBRARIES
     ${Boost_LIBRARIES}
     ${LogHard_LIBRARIES}
     ${SharemindLibController_LIBRARIES}
-    ${SharemindLibIController_LIBRARIES}
 )
 
 FILE(GLOB_RECURSE STANDALONEDEMO_SECREC "${CMAKE_CURRENT_SOURCE_DIR}/secrec/*.sc")
