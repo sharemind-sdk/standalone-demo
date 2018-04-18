@@ -35,24 +35,6 @@
 
 namespace sm = sharemind;
 
-inline std::shared_ptr<void> newGlobalBuffer(std::size_t const size) {
-    auto * const b = size ? ::operator new(size) : nullptr;
-    try {
-        return std::shared_ptr<void>(b, sm::GlobalDeleter());
-    } catch (...) {
-        ::operator delete(b);
-        throw;
-    }
-}
-
-inline std::shared_ptr<void> newGlobalBuffer(void const * const data,
-                                             std::size_t const size)
-{
-    auto r(newGlobalBuffer(size));
-    std::memcpy(r.get(), data, size);
-    return r;
-}
-
 struct ExtraIndentExceptionFormatter {
 
     template <typename OutStream>
@@ -118,22 +100,22 @@ int main(int argc, char ** argv) {
     logger.info() << "It privately computes the scalar product of the following two vectors";
 
     // Generate some user for input
-    std::vector<sm::Int64> a;
-    std::vector<sm::Int64> b;
+    auto a = std::make_shared<std::vector<sm::Int64>>();
+    auto b = std::make_shared<std::vector<sm::Int64>>();
 
     for (sm::Int64 i = -5; i < 5; ++i) {
-        a.push_back(i);
+        a->push_back(i);
     }
     for (sm::Int64 i = 0; i < 10; ++i) {
-        b.push_back(i);
+        b->push_back(i);
     }
 
-    assert(a.size() == b.size());
+    assert(a->size() == b->size());
 
     {
         std::ostringstream oss;
         oss << "Vector A: [ ";
-        for (const auto val : a) {
+        for (const auto val : *a) {
             oss << val << ' ';
         }
         oss << ']';
@@ -143,7 +125,7 @@ int main(int argc, char ** argv) {
     {
         std::ostringstream oss;
         oss << "Vector B: [ ";
-        for (const auto val : b) {
+        for (const auto val : *b) {
             oss << val << ' ';
         }
         oss << ']';
@@ -160,14 +142,14 @@ int main(int argc, char ** argv) {
                 std::make_shared<sm::IController::Value>(
                     "pd_shared3p",
                     "int64",
-                    newGlobalBuffer(a.data(), sizeof(sm::Int64) * a.size()),
-                    sizeof(sm::Int64) * a.size());
+                    std::shared_ptr<sm::Int64>(a, a->data()),
+                    sizeof(sm::Int64) * a->size());
         arguments["b"] =
                 std::make_shared<sm::IController::Value>(
                     "pd_shared3p",
                     "int64",
-                    newGlobalBuffer(b.data(), sizeof(sm::Int64) * b.size()),
-                    sizeof(sm::Int64) * b.size());
+                    std::shared_ptr<sm::Int64>(b, b->data()),
+                    sizeof(sm::Int64) * b->size());
 
         // Run code
         logger.info() << "Sending secret shared arguments and running SecreC bytecode on the servers";
