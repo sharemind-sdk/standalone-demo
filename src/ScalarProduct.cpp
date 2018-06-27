@@ -18,6 +18,7 @@
  */
 
 #include <boost/program_options.hpp>
+#include <cstdint>
 #include <iostream>
 #include <LogHard/Backend.h>
 #include <LogHard/FileAppender.h>
@@ -100,13 +101,13 @@ int main(int argc, char ** argv) {
     logger.info() << "It privately computes the scalar product of the following two vectors";
 
     // Generate some user for input
-    auto a = std::make_shared<std::vector<sm::Int64>>();
-    auto b = std::make_shared<std::vector<sm::Int64>>();
+    auto a = std::make_shared<std::vector<std::int64_t>>();
+    auto b = std::make_shared<std::vector<std::int64_t>>();
 
-    for (sm::Int64 i = -5; i < 5; ++i) {
+    for (std::int64_t i = -5; i < 5; ++i) {
         a->push_back(i);
     }
-    for (sm::Int64 i = 0; i < 10; ++i) {
+    for (std::int64_t i = 0; i < 10; ++i) {
         b->push_back(i);
     }
 
@@ -137,42 +138,42 @@ int main(int argc, char ** argv) {
         sm::SystemController c(logger, *config);
 
         // Initialize the argument map and set the arguments
-        sm::IController::ValueMap arguments;
+        sm::SystemController::ValueMap arguments;
         arguments["a"] =
-                std::make_shared<sm::IController::Value>(
+                std::make_shared<sm::SystemController::Value>(
                     "pd_shared3p",
                     "int64",
-                    std::shared_ptr<sm::Int64>(a, a->data()),
-                    sizeof(sm::Int64) * a->size());
+                    std::shared_ptr<std::int64_t>(a, a->data()),
+                    sizeof(std::int64_t) * a->size());
         arguments["b"] =
-                std::make_shared<sm::IController::Value>(
+                std::make_shared<sm::SystemController::Value>(
                     "pd_shared3p",
                     "int64",
-                    std::shared_ptr<sm::Int64>(b, b->data()),
-                    sizeof(sm::Int64) * b->size());
+                    std::shared_ptr<std::int64_t>(b, b->data()),
+                    sizeof(std::int64_t) * b->size());
 
         // Run code
         logger.info() << "Sending secret shared arguments and running SecreC bytecode on the servers";
-        sm::IController::ValueMap results = c.runCode("scalar_product.sb", arguments);
+        sm::SystemController::ValueMap results = c.runCode("scalar_product.sb", arguments);
 
         // Print the result
-        sm::IController::ValueMap::const_iterator it = results.find("c");
+        sm::SystemController::ValueMap::const_iterator it = results.find("c");
     if (it == results.end()) {
             logger.error() << "Missing 'c' result value.";
             return EXIT_FAILURE;
 	}
 
 	try {
-            sm::Int64 c = it->second->getValue<sm::Int64>();
+            auto c = it->second->getValue<std::int64_t>();
             logger.info() << "The computed scalar product is: " << c;
-        } catch (const sm::IController::Value::ParseException & e) {
+        } catch (const sm::SystemController::Value::ParseException & e) {
             logger.error() << "Failed to cast 'c' to appropriate type: " <<
                 e.what();
             return EXIT_FAILURE;
         }
 
         return EXIT_SUCCESS;
-    } catch (const sm::IController::WorkerException & e) {
+    } catch (const sm::SystemController::WorkerException & e) {
         logger.fatal() << "Multiple exceptions caught:";
         for (size_t i = 0u; i < e.numWorkers(); i++) {
             if (std::exception_ptr ep = e.nested_ptrs()[i]) {
