@@ -28,8 +28,6 @@
 #include <sharemind/controller/SystemController.h>
 #include <sharemind/controller/SystemControllerConfiguration.h>
 #include <sharemind/controller/SystemControllerGlobals.h>
-#include <sharemind/DebugOnly.h>
-#include <sharemind/GlobalDeleter.h>
 #include <sharemind/MakeUnique.h>
 #include <sstream>
 #include <string>
